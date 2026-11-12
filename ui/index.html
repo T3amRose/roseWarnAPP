@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Warnungen</title>
+    <style>
+        /* Unsichtbar, bis lb-phone die Seite im Handy einbettet
+           (lb-phone setzt dann data-device="phone" und visibility am body).
+           So bleibt die ui_page-Seite auf dem normalen Bildschirm unsichtbar. */
+        html { visibility: hidden; background: transparent !important; }
+        body:not([data-device]) { visibility: hidden !important; background: transparent !important; }
+        body[data-device] { visibility: visible; }
+    </style>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app">
+        <header class="top">
+            <div class="top-row">
+                <div>
+                    <div class="eyebrow">Warndienst</div>
+                    <h1>Warnungen</h1>
+                </div>
+                <button id="adminToggle" class="admin-toggle" hidden aria-label="Neue Warnung">+</button>
+            </div>
+        </header>
+
+        <!-- Admin: neue Warnung -->
+        <section id="adminForm" class="card admin-form" hidden>
+            <div class="label">Neue Warnung senden</div>
+            <div class="sender" id="fSender"></div>
+            <input id="fTitle" type="text" maxlength="40" placeholder="Titel, z. B. Bombendrohung">
+            <textarea id="fText" maxlength="300" rows="3" placeholder="Was sollen die Leute tun?"></textarea>
+
+            <div class="seg" id="fLevel">
+                <button type="button" data-level="danger" class="active">Warnung</button>
+                <button type="button" data-level="info">Hinweis</button>
+            </div>
+
+            <label class="duration">
+                <span>Dauer</span>
+                <select id="fMinutes">
+                    <option value="0">bis ich sie aufhebe</option>
+                    <option value="5">5 Minuten</option>
+                    <option value="10">10 Minuten</option>
+                    <option value="15">15 Minuten</option>
+                    <option value="30">30 Minuten</option>
+                    <option value="60">1 Stunde</option>
+                    <option value="120">2 Stunden</option>
+                </select>
+            </label>
+
+            <div class="zone-box" id="fZoneBox" hidden>
+                <label class="switch-row">
+                    <span>
+                        <strong>Sperrzone einrichten</strong>
+                        <small>Radius um deine aktuelle Position. NPCs darin bleiben stehen.</small>
+                    </span>
+                    <input type="checkbox" id="fZone">
+                    <span class="switch"></span>
+                </label>
+                <label class="duration" id="fRadiusRow" hidden>
+                    <span>Radius</span>
+                    <select id="fRadius"></select>
+                </label>
+            </div>
+
+            <div class="form-error" id="fError" hidden></div>
+            <button type="button" id="fSend" class="send">An alle senden</button>
+        </section>
+
+        <section id="status" class="status calm">
+            <div class="status-icon" id="statusIcon"></div>
+            <div class="status-text">
+                <div class="status-title" id="statusTitle">Keine Warnungen</div>
+                <div class="status-sub" id="statusSub">Alles ruhig.</div>
+            </div>
+        </section>
+
+        <section id="activeList" class="active-list"></section>
+
+        <section class="history">
+            <div class="label">Verlauf</div>
+            <ul id="historyList"></ul>
+            <div id="historyEmpty" class="empty">Noch keine Warnungen seit dem Serverstart.</div>
+        </section>
+
+        <pre id="debug" class="debug" hidden></pre>
+    </div>
+
+    <script src="alarm.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
