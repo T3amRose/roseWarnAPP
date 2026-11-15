@@ -193,6 +193,7 @@ function setState(data) {
             zoneText: typeof perm.zoneText === 'string' ? perm.zoneText : '',
         },
         zonesEnabled: data.zonesEnabled === true,
+        zoneForceInfo: data.zoneForceInfo !== false,
         zoneRadii: toArray(data.zoneRadii).map(Number).filter((n) => n > 0),
     };
     if (data.now) clockOffset = data.now - Date.now();
@@ -227,12 +228,46 @@ $('adminToggle').addEventListener('click', () => {
     showFormError('');
 });
 
+function setLevel(level) {
+    formLevel = level;
+    $('fLevel').querySelectorAll('button').forEach((b) => b.classList.toggle('active', b.dataset.level === level));
+}
+
+// Stufe sperren (bei Sperrzone nur "Hinweis")
+let levelBeforeZone = null;
+function lockLevelToInfo(lock) {
+    const dangerBtn = $('fLevel').querySelector('button[data-level="danger"]');
+    if (lock) {
+        if (levelBeforeZone === null) levelBeforeZone = formLevel;
+        setLevel('info');
+        dangerBtn.disabled = true;
+        $('fLevel').classList.add('locked');
+    } else {
+        dangerBtn.disabled = false;
+        $('fLevel').classList.remove('locked');
+        if (levelBeforeZone !== null) setLevel(levelBeforeZone);
+        levelBeforeZone = null;
+    }
+}
+
 $('fLevel').addEventListener('click', (ev) => {
     const btn = ev.target.closest('button[data-level]');
-    if (!btn) return;
-    formLevel = btn.dataset.level;
-    $('fLevel').querySelectorAll('button').forEach((b) => b.classList.toggle('active', b === btn));
+    if (!btn || btn.disabled) return;
+    setLevel(btn.dataset.level);
 });
+
+// Aktuelle Position als Ort eintragen
+async function fillPlace(force) {
+    const input = $('fPlace');
+    if (!force && input.value.trim()) return;
+    try {
+        const res = await post('getLocation');
+        const data = await res.json();
+        if (data && typeof data.place === 'string' && data.place) input.value = data.place;
+    } catch (_) { /* Feld bleibt leer -> Server/Client nimmt die Position */ }
+}
+
+$('fPlaceHere').addEventListener('click', () => fillPlace(true));
 
 // Vorlage bei "Sperrzone" automatisch einsetzen (bleibt bearbeitbar)
 let insertedPreset = { title: null, text: null };
@@ -240,6 +275,9 @@ let insertedPreset = { title: null, text: null };
 $('fZone').addEventListener('change', () => {
     const on = $('fZone').checked;
     $('fRadiusRow').hidden = !on;
+    $('fZoneNote').hidden = !state.zoneForceInfo;
+    if (state.zoneForceInfo) lockLevelToInfo(on);
+    if (on) fillPlace(false);
 
     const title = $('fTitle');
     const text = $('fText');
@@ -268,6 +306,8 @@ $('fSend').addEventListener('click', () => {
     const minutes = Number($('fMinutes').value) || 0;
     const zone = !$('fZoneBox').hidden && $('fZone').checked;
     const radius = Number($('fRadius').value) || 0;
+    const place = zone ? $('fPlace').value.trim() : '';
+    const level = zone && state.zoneForceInfo ? 'info' : formLevel;
 
     // Bei Sperrzone darf leer bleiben -> Server nimmt die Vorlage
     if (!title && !zone) return showFormError('Bitte einen Titel eingeben.');
@@ -275,19 +315,22 @@ $('fSend').addEventListener('click', () => {
     if (zone && !radius) return showFormError('Bitte einen Radius wählen.');
     showFormError('');
 
-    const extra = zone ? ` Dazu eine Sperrzone von ${radius} m um deine Position.` : '';
+    const extra = zone ? ` Sperrzone: ${radius} m${place ? ' um ' + place : ' um deine Position'}.` : '';
+    const sound = level === 'info' ? 'als Hinweis' : 'mit Alarmton';
     confirmPopUp(
-        'Warnung senden?',
-        `„${title || state.perm.zoneTitle || 'Sperrzone'}“ geht mit Alarmton an alle Spieler.${extra}`,
+        zone ? 'Sperrzone senden?' : 'Warnung senden?',
+        `„${title || state.perm.zoneTitle || 'Sperrzone'}“ geht ${sound} an alle Spieler.${extra}`,
         'Senden',
         () => {
-            post('createWarning', { title, text, level: formLevel, minutes, zone, radius }).catch(() => {});
+            post('createWarning', { title, text, level, minutes, zone, radius, place }).catch(() => {});
             $('fTitle').value = '';
             $('fText').value = '';
             $('fMinutes').value = '0';
             $('fZone').checked = false;
             $('fRadiusRow').hidden = true;
             insertedPreset = { title: null, text: null };
+            $('fPlace').value = '';
+            lockLevelToInfo(false);
             $('adminForm').hidden = true;
             $('adminToggle').classList.remove('open');
         }

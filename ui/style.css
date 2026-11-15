@@ -277,6 +277,29 @@ h1 { margin: 0.15rem 0 0; font-size: 2rem; font-weight: 800; }
 
 .zone-box { display: flex; flex-direction: column; gap: 0.5rem; }
 .zone-box[hidden] { display: none; }
+
+.zone-fields { display: flex; flex-direction: column; gap: 0.5rem; }
+.zone-fields[hidden] { display: none; }
+
+.place-field { display: flex; flex-direction: column; gap: 0.3rem; font-size: 0.82rem; color: var(--muted); }
+.place-row { display: flex; gap: 0.4rem; }
+.place-row input { flex: 1; min-width: 0; }
+.here-btn {
+    border: none;
+    border-radius: 0.7rem;
+    padding: 0 0.8rem;
+    background: var(--info-soft);
+    color: var(--info);
+    font: inherit;
+    font-size: 0.82rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.zone-note { font-size: 0.78rem; color: var(--info); }
+.zone-note[hidden] { display: none; }
+
+.seg.locked button[data-level="danger"] { opacity: 0.35; cursor: not-allowed; }
 .duration[hidden] { display: none; }
 
 .switch-row {

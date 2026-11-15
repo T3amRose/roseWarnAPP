@@ -405,14 +405,37 @@ RegisterNUICallback('getData', function(_, cb)
     cb(payload())
 end)
 
+-- Aktuelle Position als lesbarer Ort, z.B. "Vespucci Blvd / Palomino Ave, Little Seoul"
+local function getLocationText()
+    local coords = GetEntityCoords(PlayerPedId())
+    local streetHash, crossingHash = GetStreetNameAtCoord(coords.x, coords.y, coords.z)
+    local street = streetHash and streetHash ~= 0 and GetStreetNameFromHashKey(streetHash) or nil
+    local crossing = crossingHash and crossingHash ~= 0 and GetStreetNameFromHashKey(crossingHash) or nil
+    local area = GetLabelText(GetNameOfZone(coords.x, coords.y, coords.z))
+    if area == 'NULL' or area == '' then area = nil end
+
+    local road = street
+    if road and crossing and crossing ~= '' and crossing ~= street then
+        road = road .. ' / ' .. crossing
+    end
+
+    if road and area then return road .. ', ' .. area end
+    return road or area or ''
+end
+
+RegisterNUICallback('getLocation', function(_, cb)
+    cb({ place = getLocationText() })
+end)
+
 -- Admin: neue Warnung aus der App
 RegisterNUICallback('createWarning', function(data, cb)
     cb('ok')
     if type(data) ~= 'table' then return end
 
     local coords = GetEntityCoords(PlayerPedId())
-    local streetHash = GetStreetNameAtCoord(coords.x, coords.y, coords.z)
-    local street = streetHash and GetStreetNameFromHashKey(streetHash) or nil
+    local place = type(data.place) == 'string' and data.place or ''
+    if place:gsub('%s', '') == '' then place = getLocationText() end
+    local street = place
 
     TriggerServerEvent('rose_WarnAPP:createWarning', {
         title = data.title,

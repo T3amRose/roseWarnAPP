@@ -16,8 +16,8 @@ Config.Duration = 12000
 -- Mit /alarmstop kann jeder Spieler einen laufenden Alarm abbrechen.
 Config.Sound = {
     enabled = true,
-    volume = 0.4,          -- 0.0 bis 1.0
-    repeats = 2,           -- wie oft das Warnmuster abgespielt wird (ein Durchgang ca. 5,5 s)
+    volume = 0.2,          -- 0.0 bis 1.0
+    repeats = 1,           -- wie oft das Warnmuster abgespielt wird (ein Durchgang ca. 5,5 s)
     infoSound = 'chime',   -- Ton bei Admin-Warnungen der Stufe "Hinweis": 'chime', 'emergency' oder 'none'
     allClear = true,       -- kurzer Entwarnungston, wenn eine Warnung vorbei ist
 }
@@ -111,6 +111,7 @@ Config.Zones = {
     blipColor = 1,           -- 1 = rot (Blip-Farben: docs.fivem.net/docs/game-references/blips)
     blipAlpha = 100,         -- Durchsichtigkeit des Kreises (0-255)
     enterMessage = true,     -- Hinweis oben links beim Betreten / Verlassen
+    forceInfo = true,        -- Sperrzonen immer als "Hinweis" senden (blau, Gong statt Alarm)
     -- Vorlage für Admins ohne Behörden-Job (Behörden haben ihre eigene, siehe Config.Agencies)
     preset = {
         title = 'Sperrzone',

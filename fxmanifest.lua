@@ -4,7 +4,7 @@ lua54 'yes'
 
 name 'rose_WarnAPP'
 description 'Warnmeldungen bei Hurrikan, Erdbeben, Meteoriten usw. aus gg_weathersystem, inkl. lb-phone App'
-version '1.1.0'
+version '1.1.5'
 
 dependency 'gg_weathersystem'
 

@@ -119,6 +119,7 @@ local function buildData()
         debug = Config.Debug == true,
         maxMinutes = Config.Admin.maxMinutes,
         zonesEnabled = Config.Zones.enabled == true,
+        zoneForceInfo = Config.Zones.forceInfo ~= false,
         zoneRadii = Config.Zones.radii,
     }
 end
@@ -270,9 +271,14 @@ RegisterNetEvent('rose_WarnAPP:createWarning', function(data)
             zone = {
                 x = x, y = y, z = z,
                 radius = radius,
-                street = clean(data.street, 60),
+                street = clean(data.street, 80), -- Ort (in der App eingetragen oder automatisch)
             }
         end
+    end
+
+    -- Sperrzonen sind immer ein Hinweis (blau, Gong statt Alarm)
+    if zone and Config.Zones.forceInfo ~= false then
+        level = 'info'
     end
 
     local e = addHistory('CUSTOM', { label = label, level = level }, text, detail)

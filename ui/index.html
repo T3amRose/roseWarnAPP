@@ -60,10 +60,20 @@
                     <input type="checkbox" id="fZone">
                     <span class="switch"></span>
                 </label>
-                <label class="duration" id="fRadiusRow" hidden>
-                    <span>Radius</span>
-                    <select id="fRadius"></select>
-                </label>
+                <div class="zone-fields" id="fRadiusRow" hidden>
+                    <label class="place-field">
+                        <span>Ort der Sperrzone</span>
+                        <div class="place-row">
+                            <input id="fPlace" type="text" maxlength="80" placeholder="z. B. Vespucci Blvd, Little Seoul">
+                            <button type="button" id="fPlaceHere" class="here-btn" title="Aktuelle Position eintragen">Hier</button>
+                        </div>
+                    </label>
+                    <label class="duration">
+                        <span>Radius</span>
+                        <select id="fRadius"></select>
+                    </label>
+                    <div class="zone-note" id="fZoneNote">Sperrzonen werden als <strong>Hinweis</strong> gesendet.</div>
+                </div>
             </div>
 
             <div class="form-error" id="fError" hidden></div>
