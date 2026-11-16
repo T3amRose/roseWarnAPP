@@ -124,6 +124,7 @@ Config.Zones = {
 ---------------------------------------------------------------------
 -- Name wie in gg_weathersystem. Eintrag löschen = keine Warnung.
 -- level: 'danger' (rot) oder 'info' (blau)
+-- stopDelay: Entwarnung so viele Sekunden später senden (falls sie zu früh kommt)
 Config.WeatherEvents = {
     HURRICANE = {
         label = 'Hurrikan',
@@ -142,6 +143,7 @@ Config.WeatherEvents = {
         type  = 'error',
         level = 'danger',
         icon  = 'meteor',
+        stopDelay = 120,  -- Sekunden: Meteore fallen noch, nachdem das Wetter schon gewechselt hat
     },
     -- Sternschnuppen / Nordlicht sind keine Warnungen. Bei Bedarf wieder einkommentieren:
     -- STARFALL = { label = 'Sternschnuppen', title = 'HIMMELSEREIGNIS', start = 'Sternschnuppen am Himmel.', stop = 'Die Sternschnuppen sind vorbei.', type = 'inform', level = 'info', icon = 'star' },

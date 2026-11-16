@@ -3,6 +3,7 @@ local RES = 'gg_weathersystem'
 local activeWeather = nil   -- z.B. 'HURRICANE', solange ein Ereignis läuft
 local activeQuake   = nil   -- Quake-Tabelle, solange ein Beben läuft
 local lastWeather   = nil
+local pendingStopAt = nil   -- GetGameTimer(), ab dann wird die verzögerte Entwarnung gesendet
 
 local history = {}          -- neueste zuerst: { id, kind, label, level, text, detail, started, ended, expires }
 local weatherEntry = nil    -- laufender Verlaufseintrag (Wetter)
@@ -350,7 +351,26 @@ CreateThread(function()
 
             -- Wetter-Ereignisse
             local newEvent = (weather and Config.WeatherEvents[weather]) and weather or nil
-            if newEvent ~= activeWeather then
+
+            -- Ende verzögern: gg_weathersystem stellt das Wetter schon um,
+            -- während das Ereignis (z.B. Meteore) noch ausklingt.
+            local holdEnd = false
+            if activeWeather and newEvent == nil then
+                local old = Config.WeatherEvents[activeWeather]
+                local delay = (old and tonumber(old.stopDelay)) or 0
+                if delay > 0 then
+                    if not pendingStopAt then
+                        pendingStopAt = GetGameTimer() + delay * 1000
+                        debugPrint(('%s: Wetter gewechselt, Entwarnung in %d s'):format(activeWeather, delay))
+                    end
+                    holdEnd = GetGameTimer() < pendingStopAt
+                end
+            else
+                pendingStopAt = nil -- Ereignis läuft weiter (oder anderes Ereignis) -> nicht warten
+            end
+
+            if newEvent ~= activeWeather and not holdEnd then
+                pendingStopAt = nil
                 if activeWeather then
                     local old = Config.WeatherEvents[activeWeather]
                     endHistory(weatherEntry)
